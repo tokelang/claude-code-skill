@@ -20,7 +20,7 @@ BIN="${DIR}/tokelang-cli-${OS}-${ARCH}${EXT}"
 
 if [[ ! -x "${BIN}" ]]; then
   echo "tokelang-cli: no bundled binary for ${OS}-${ARCH} (expected ${BIN})." >&2
-  echo "tokelang-cli: reinstall the plugin (npx @tokelang/claude-code-skill)," >&2
+  echo "tokelang-cli: reinstall the plugin (npx @tokelang-lite/claude-code-skill)," >&2
   echo "tokelang-cli: or build from source (cargo build --release -p tokelang-cli)." >&2
   exit 127
 fi

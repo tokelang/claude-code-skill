@@ -2,7 +2,7 @@
 /*
  * Tokelang Claude Code skill — NPX installer.
  *
- *   npx @tokelang/claude-code-skill
+ *   npx @tokelang-lite/claude-code-skill
  *
  * What it does (no external npm dependencies — built-in modules only):
  *   1. Detect this host's platform/arch and pick the matching release artifact name.
@@ -45,7 +45,7 @@ if (ARGS.includes('--help') || ARGS.includes('-h')) {
     [
       'Tokelang Claude Code skill installer',
       '',
-      'Usage: npx @tokelang/claude-code-skill [--dry-run] [--force]',
+      'Usage: npx @tokelang-lite/claude-code-skill [--dry-run] [--force]',
       '',
       '  --dry-run   Show what would happen; change nothing.',
       '  --force     Reinstall even if already present.',
