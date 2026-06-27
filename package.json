@@ -1,0 +1,44 @@
+{
+  "name": "@tokelang/claude-code-skill",
+  "version": "1.0.0",
+  "description": "NPX installer for the Tokelang Claude Code plugin: downloads the matching static tokelang-cli binary and installs the plugin (skills + hooks + statusline) as a personal skills-directory plugin. Compresses context files and subagent prompts locally before they reach the model. Apache 2.0.",
+  "homepage": "https://tokelang.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tokelang/claude-code-skill"
+  },
+  "license": "Apache-2.0",
+  "author": "Tokelang",
+  "type": "commonjs",
+  "bin": {
+    "tokelang-install": "install/install.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "test": "node install/install.js --dry-run"
+  },
+  "files": [
+    ".claude-plugin/",
+    "skills/",
+    "hooks/",
+    "statusline/",
+    "bin/tokelang-cli",
+    "settings.json",
+    "install/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "tokens",
+    "compression",
+    "prompt-engineering",
+    "cost-reduction"
+  ]
+}

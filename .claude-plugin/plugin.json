@@ -1,0 +1,21 @@
+{
+  "name": "tokelang",
+  "version": "1.0.0",
+  "description": "Compress your context files and subagent prompts locally before they reach the model (per-prompt input compression via the tokelang-cli wrap alias). Apache 2.0 open source.",
+  "author": {
+    "name": "Tokelang",
+    "email": "hello@tokelang.com",
+    "url": "https://tokelang.com"
+  },
+  "homepage": "https://tokelang.com",
+  "repository": "https://github.com/tokelang/claude-code-skill",
+  "license": "Apache-2.0",
+  "keywords": [
+    "tokens",
+    "compression",
+    "context",
+    "prompt-engineering",
+    "cost-reduction",
+    "brevity"
+  ]
+}

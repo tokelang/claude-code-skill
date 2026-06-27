@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Platform resolver: pick the right static tokelang-cli binary for this host and exec it.
+# Lets the hooks, slash commands, and docs all call a single stable path
+# (`${CLAUDE_PLUGIN_ROOT}/bin/tokelang-cli`) regardless of OS/arch.
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+EXT=""
+
+# Windows under Git Bash / MSYS2 / Cygwin reports "mingw64_nt-10.0", "msys_nt-..", or
+# "cygwin_nt-.." for `uname -s`; normalize all of them to "windows" and add the .exe suffix.
+# (`uname -m` already returns "x86_64" there, matching the release artifact name.)
+case "${OS}" in
+  mingw* | msys* | cygwin* | windows*) OS="windows"; EXT=".exe" ;;
+esac
+
+BIN="${DIR}/tokelang-cli-${OS}-${ARCH}${EXT}"
+
+if [[ ! -x "${BIN}" ]]; then
+  echo "tokelang-cli: no bundled binary for ${OS}-${ARCH} (expected ${BIN})." >&2
+  echo "tokelang-cli: reinstall the plugin (npx @tokelang/claude-code-skill)," >&2
+  echo "tokelang-cli: or build from source (cargo build --release -p tokelang-cli)." >&2
+  exit 127
+fi
+
+exec "${BIN}" "$@"
