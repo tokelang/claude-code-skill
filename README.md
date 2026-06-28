@@ -11,7 +11,7 @@ Tokelang compresses tokens in your Claude Code session via a semantic validator 
 | Part | Install | What it does |
 |---|---|---|
 | **Claude Code skill** | `npx @tokelang-lite/claude-code-skill` | Compresses your context files (slash command), your subagent invocations (Task tool prompts), and injects an output style guide so the model responds briefly. |
-| **`tokelang-cli wrap` alias** | `alias claude='tokelang-cli wrap claude'` | Compresses **every prompt you type** before it reaches Claude Code. The only way to get true input compression — Claude Code's plugin hooks are additive only and can't rewrite user input. |
+| **`tokelang-cli wrap` alias** | `alias claude='tokelang-cli wrap claude'` | Compresses **non-interactive** prompts before they reach the model — `claude -p "…"`, `codex exec`, `gemini -p`, and stdin-piped calls. The only way to get input compression at all (Claude Code's plugin hooks are additive-only and can't rewrite user input). **Note:** the interactive REPL isn't wrapped in v1.0.0 (needs PTY support — on the roadmap). |
 
 You can install just the skill (lighter touch) or skill + wrap alias (full compression). Both share the same local engine. **Most users want both.**
 
@@ -46,15 +46,15 @@ alias codex='tokelang-cli wrap codex'
 alias gemini='tokelang-cli wrap gemini'
 ```
 
-Now every prompt you type to claude/codex/gemini gets compressed first.
+Now your **non-interactive** calls to claude/codex/gemini (`-p` / `exec` / piped stdin) get compressed first. (Interactive REPL sessions aren't wrapped in v1.0.0 — PTY support is on the roadmap.)
 
 ## What runs where
 
 ```
-You type:    "explain database connection pooling in detail please"
+You run:     claude -p "explain database connection pooling in detail please"
               │
               ▼
-tokelang-cli wrap (intercepts stdin)
+tokelang-cli wrap (rewrites the -p arg / stdin)
               │
               ▼
 Engine compresses to: "explain DB conn pooling detailed"
