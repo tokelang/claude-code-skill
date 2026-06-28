@@ -10,7 +10,7 @@ Tokelang compresses tokens in your Claude Code session via a semantic validator 
 
 | Part | Install | What it does |
 |---|---|---|
-| **Claude Code skill** | `claude plugin install tokelang` | Compresses your context files (slash command), your subagent invocations (Task tool prompts), and injects an output style guide so the model responds briefly. |
+| **Claude Code skill** | `npx @tokelang-lite/claude-code-skill` | Compresses your context files (slash command), your subagent invocations (Task tool prompts), and injects an output style guide so the model responds briefly. |
 | **`tokelang-cli wrap` alias** | `alias claude='tokelang-cli wrap claude'` | Compresses **every prompt you type** before it reaches Claude Code. The only way to get true input compression — Claude Code's plugin hooks are additive only and can't rewrite user input. |
 
 You can install just the skill (lighter touch) or skill + wrap alias (full compression). Both share the same local engine. **Most users want both.**
@@ -18,23 +18,25 @@ You can install just the skill (lighter touch) or skill + wrap alias (full compr
 ## Install — skill only
 
 ```bash
-claude plugin marketplace add tokelang/claude-code-skill
-claude plugin install tokelang
+npx @tokelang-lite/claude-code-skill
 ```
 
-That's it. Start a new Claude Code session and the skill is active at Level 2 (Balanced — subagent input compression + lite output style guide). Slash commands available.
+Installs to `~/.claude/skills/tokelang/` — downloads the matching engine binary and verifies its SHA-256. That's it: start a new Claude Code session and the skill is active at Level 2 (Balanced — subagent input compression + lite output style guide). Slash commands available.
 
 ## Install — skill + wrap mode (recommended for full compression)
 
 ```bash
 # 1. Install the skill (as above)
-claude plugin marketplace add tokelang/claude-code-skill
-claude plugin install tokelang
+npx @tokelang-lite/claude-code-skill
 
-# 2. Install the standalone CLI binary
-brew install tokelang/tap/tokelang-cli         # macOS
-# OR
-curl -fsSL https://tokelang.com/install.sh | bash   # Linux/macOS
+# 2. Install the standalone CLI binary — grab the matching asset from the latest release:
+#    https://github.com/tokelang/tokelang-cli/releases/latest
+#    Linux x86_64:
+curl -fsSL -o ~/.local/bin/tokelang-cli \
+  https://github.com/tokelang/tokelang-cli/releases/download/v1.0.0/tokelang-cli-linux-x86_64
+chmod +x ~/.local/bin/tokelang-cli
+#    (macOS: tokelang-cli-darwin-arm64 / -darwin-x86_64 · Windows: tokelang-cli-windows-x86_64.exe)
+#    Homebrew tap + one-line install.sh are coming soon.
 
 # 3. Add the wrap alias to your shell config (~/.bashrc, ~/.zshrc):
 alias claude='tokelang-cli wrap claude'
@@ -83,8 +85,8 @@ You see:     model's response
 | Skill more aggressive | `/tokelang-level 3` |
 | Wrap mode disabled | `unalias claude` or comment out the alias line |
 | Usage metrics (opt-in) | `/tokelang-telemetry on` / `off` — **off by default**; aggregate counts only, never content |
-| Uninstall skill | `claude plugin uninstall tokelang` |
-| Uninstall CLI | `brew uninstall tokelang-cli` or delete the binary |
+| Uninstall skill | `rm -rf ~/.claude/skills/tokelang` |
+| Uninstall CLI | delete the `tokelang-cli` binary from your PATH |
 
 Skill settings persist in `~/.claude/settings.json` under `"tokelang.level"`.
 
