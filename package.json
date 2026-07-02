@@ -1,7 +1,7 @@
 {
   "name": "@tokelang-lite/claude-code-skill",
   "version": "1.0.0",
-  "description": "NPX installer for the Tokelang Claude Code plugin: downloads the matching static tokelang-cli binary and installs the plugin (skills + hooks + statusline) as a personal skills-directory plugin. Compresses context files and subagent prompts locally before they reach the model. Apache 2.0.",
+  "description": "NPX installer for the Tokelang Claude Code plugin: downloads the matching engine binary and installs the plugin (skills + agents + hooks + statusline) as a personal skills-directory plugin. Compresses subagent prompts + WebFetch/Search tool results + output verbosity locally, with an optional cost router. Apache 2.0.",
   "homepage": "https://tokelang.com",
   "repository": {
     "type": "git",

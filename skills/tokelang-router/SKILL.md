@@ -59,4 +59,4 @@ Valid models: `haiku sonnet opus fable inherit`. Valid effort: `low medium high 
 ## Notes
 - There is **no context-window knob** — the model fixes the window (200K). The real cost levers are
   `worker-max-turns` (caps the worker loop) and the router's curation discipline (keep briefs small).
-- Keep `tokelang.level >= 2` (separate setting) so router→worker briefs get compressed by the Task hook.
+- Keep `tokelang` at `lite` or `full` (not `off`) so router→worker briefs get compressed by the Task hook.

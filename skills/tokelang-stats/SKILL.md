@@ -4,7 +4,7 @@ description: >
   Show savings for the current session — tokens compressed, % reduction, and an approximate
   dollar figure at Anthropic's published input rate. Reads this session's local sidecar via
   the bundled CLI; no network call. Counts only what the skill compresses (Task subagent
-  prompts + WebFetch/Search tool results + /tokelang-compress file runs).
+  prompts + WebFetch/Search tool results).
   Trigger: /tokelang-stats
 ---
 
@@ -35,15 +35,15 @@ Reports what Tokelang has saved you in the current Claude Code session.
 4. Print summary:
    ```
    Tokelang — this session
-   Compression events:    14   (subagent prompts + tool results + any /tokelang-compress file runs)
+   Compression events:    14   (subagent prompts + tool results)
    Input tokens saved:    4,287 (32% reduction)
    Estimated $ saved:     ~$0.013 (input $3/MTok)
    ```
 
-> **Counted:** Task subagent prompts (PreToolUse), WebFetch/WebSearch tool results (PostToolUse, via
-> `updatedToolOutput`), and `/tokelang-compress` file runs.
-> **Not counted** (be honest about scope): per-turn user input — the plugin can't rewrite it, so use
-> `tokelang-cli wrap` for that; **Read/Edit/Bash/Grep tool results** — deliberately not compressed
+> **Counted:** Task subagent prompts (PreToolUse) and WebFetch/WebSearch tool results (PostToolUse, via
+> `updatedToolOutput`).
+> **Not counted** (be honest about scope): per-turn user input — the plugin can't rewrite it (that
+> needs the separate proxy); **Read/Edit/Bash/Grep tool results** — deliberately not compressed
 > (code/logs/data are correctness-critical); and model output — never post-processed. Stats reflect
 > only what the skill actually compresses.
 

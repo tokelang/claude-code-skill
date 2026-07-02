@@ -95,11 +95,11 @@ apply_all() {
 status() {
   ensure_config
   local agent; agent="$(jq -r '.agent // "(none)"' "${SETTINGS}" 2>/dev/null || echo '(none)')"
-  local level; level="$(jq -r '.["tokelang.level"] // "2"' "${SETTINGS}" 2>/dev/null || echo 2)"
+  local level; level="$(jq -r '.["tokelang.level"] // "lite"' "${SETTINGS}" 2>/dev/null || echo lite)"
   echo "tokelang-router config (${CONFIG}):"
   jq -r '"  enabled        : \(.enabled)\n  router_model   : \(.router_model)\n  router_effort  : \(.router_effort // "medium")\n  routing        : \(.routing // "fixed")\n  worker_model   : \(.worker_model)\n  worker_effort  : \(.worker_effort)\n  worker_max_turns: \(.worker_max_turns // "(unset)")"' "${CONFIG}"
   echo "  session agent  : ${agent}   (settings.json .agent)"
-  echo "  tokelang.level : ${level}   (Task-brief compression; keep >=2)"
+  echo "  tokelang.level : ${level}   (Task-brief compression; keep lite/full)"
   [[ "$(cfg_get enabled)" == "true" ]] && echo "  -> ON next session. Or this session: claude --agent tokelang-router" \
                                        || echo "  -> OFF. Enable: /tokelang-router on"
 }

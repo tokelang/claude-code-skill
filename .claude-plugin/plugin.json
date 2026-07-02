@@ -1,7 +1,7 @@
 {
   "name": "tokelang",
   "version": "1.0.0",
-  "description": "Compress your context files and subagent prompts locally before they reach the model (per-prompt input compression via the tokelang-cli wrap alias). Apache 2.0 open source.",
+  "description": "Compress subagent prompts, WebFetch/WebSearch tool results, and output verbosity in your Claude Code session — locally, validator-gated, via one dial (/tokelang off|lite|full). Plus an optional cheap-router/expensive-worker cost router. Apache 2.0 open source.",
   "author": {
     "name": "Tokelang",
     "email": "hello@tokelang.com",

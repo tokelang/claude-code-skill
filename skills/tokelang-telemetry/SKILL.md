@@ -76,7 +76,7 @@ Then summarize the "What is / isn't sent" section above so the user can decide.
 
 ## Notes
 
-- This is independent of `tokelang.level`. Turning the skill off (`/tokelang-level off`) does not
+- This is independent of `tokelang.level`. Turning the skill off (`/tokelang off`) does not
   change telemetry; telemetry is governed solely by this file.
 - No metrics are sent for sessions with zero compression events (the Stop hook exits early when
   there is no sidecar).

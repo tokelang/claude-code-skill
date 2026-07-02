@@ -26,27 +26,21 @@ CLI_BIN="${PLUGIN_ROOT}/bin/tokelang-cli-$(uname -s | tr '[:upper:]' '[:lower:]'
 pass() { echo '{}'; exit 0; }
 
 # --- level -> compression mode -----------------------------------------------------------
-# off/L1 : passthrough (tool results untouched at Safe level)
-# L2     : context_file mode — highest recall floor, no MEC stage, code-dense text near-0% (safe)
-# L3     : default mode — more aggressive ("medium" depth)
-# custom : tokelang.custom.tool_output (bool) + tokelang.custom.tool_output.depth (lite|medium)
-LEVEL="2"
+# off  : passthrough (tool results untouched)
+# lite : context_file mode — highest recall floor, no MEC stage, code-dense text near-0% (safe)
+# full : default mode — more aggressive ("medium" depth)
+LEVEL="lite"
 if [[ -f "${SETTINGS_FILE}" ]]; then
-  LEVEL="$(jq -r '.["tokelang.level"] // "2"' "${SETTINGS_FILE}" 2>/dev/null || echo "2")"
+  LEVEL="$(jq -r '.["tokelang.level"] // "lite"' "${SETTINGS_FILE}" 2>/dev/null || echo "lite")"
 fi
+# Legacy numeric levels (pre-1.0.1): 1/2 → lite, 3 → full
+case "${LEVEL}" in 1|2) LEVEL="lite" ;; 3) LEVEL="full" ;; esac
 
 MODE=""
 case "${LEVEL}" in
-  "1"|"off"|"") pass ;;
-  "2") MODE="context_file" ;;
-  "3") MODE="default" ;;
-  "custom")
-    C_ON="$(jq -r '.["tokelang.custom"].tool_output // false' "${SETTINGS_FILE}" 2>/dev/null || echo false)"
-    [[ "${C_ON}" == "true" ]] || pass
-    C_DEPTH="$(jq -r '.["tokelang.custom"]["tool_output.depth"] // "lite"' "${SETTINGS_FILE}" 2>/dev/null || echo lite)"
-    [[ "${C_DEPTH}" == "medium" ]] && MODE="default" || MODE="context_file"
-    ;;
-  *) MODE="context_file" ;;  # unknown level → conservative
+  "off"|"") pass ;;
+  "full") MODE="default" ;;
+  *) MODE="context_file" ;;   # lite (default) or unknown → conservative
 esac
 
 STDIN_JSON="$(cat)"

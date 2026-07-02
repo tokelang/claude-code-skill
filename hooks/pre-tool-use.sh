@@ -19,16 +19,18 @@ PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(dirname "$(dirname "$(readlink -f "$0")")")
 SETTINGS_FILE="${HOME}/.claude/settings.json"
 CLI_BIN="${PLUGIN_ROOT}/bin/tokelang-cli-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
 
-LEVEL="2"
+LEVEL="lite"
 if [[ -f "${SETTINGS_FILE}" ]]; then
-  LEVEL="$(jq -r '.["tokelang.level"] // "2"' "${SETTINGS_FILE}" 2>/dev/null || echo "2")"
+  LEVEL="$(jq -r '.["tokelang.level"] // "lite"' "${SETTINGS_FILE}" 2>/dev/null || echo "lite")"
 fi
+# Legacy numeric levels (pre-1.0.1): 1/2 → lite, 3 → full
+case "${LEVEL}" in 1|2) LEVEL="lite" ;; 3) LEVEL="full" ;; esac
 
 STDIN_JSON="$(cat)"
 
-# L1 / off: pass through unchanged (still need to emit valid JSON)
+# off: pass through unchanged (still need to emit valid JSON)
 case "${LEVEL}" in
-  "1"|"off"|"")
+  "off"|"")
     echo '{}'; exit 0
     ;;
 esac

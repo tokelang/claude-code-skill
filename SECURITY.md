@@ -22,7 +22,7 @@ Either channel reaches the maintainers privately.
 ## Out of scope (please don't report)
 
 - Token-saving accuracy variance (this is a feature, not a security issue)
-- "Tokelang compresses my prompts and I don't like that" — that's `/tokelang-level off`, not a vulnerability
+- "Tokelang compresses my prompts and I don't like that" — that's `/tokelang off`, not a vulnerability
 - Issues in dependencies that don't have a clear exploit path through this skill
 
 ## Response timeline

@@ -1,13 +1,7 @@
 {
-  "tokelang.level": "2",
-  "tokelang.custom": {
-    "subagent_input": true,
-    "subagent_input.depth": "lite",
-    "subagent_input.min_chars": 200,
-    "output_style": "lite"
-  },
+  "tokelang.level": "lite",
   "statusLine": {
     "command": "${CLAUDE_PLUGIN_ROOT}/statusline/savings.sh"
   },
-  "_comment": "Default install ships at level 2 (Balanced) per v1.0.0 build plan (Option B revision 2026-06-01). Level 2 enables subagent (Task tool) input compression + lite output style guide. NOTE: Claude Code's plugin hook contract does NOT allow user-input compression — for that, use `alias claude='tokelang-cli wrap claude'` separately. To turn the skill off entirely: set tokelang.level to 'off'. To uninstall: claude plugin uninstall tokelang. The .custom block is only used when tokelang.level is 'custom'."
+  "_comment": "tokelang.level is the compression dial: off | lite (default) | full. lite compresses subagent (Task) briefs + WebFetch/WebSearch tool results at a conservative depth and injects a concise output-style nudge; full goes deeper. off leaves the skill loaded but inert. Change with /tokelang <level>. The skill does NOT compress the prompts you type — Claude Code's hook contract cannot rewrite user input. Uninstall: rm -rf ~/.claude/skills/tokelang."
 }

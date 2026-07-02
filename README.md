@@ -10,12 +10,11 @@ Tokelang compresses tokens in your Claude Code session via a semantic validator 
 
 The skill compresses tokens at the surfaces Claude Code's plugin hooks can actually reach:
 
-- **Context files** (`/tokelang-compress`) — CLAUDE.md, agent personas, RAG headers.
 - **Subagent invocations** (PreToolUse hook) — Task-tool prompt bodies.
 - **Tool results** (PostToolUse hook) — WebFetch / WebSearch output folded before it enters context. Code, diffs, and command output are never touched.
 - **Output style** (SessionStart hook) — nudges the model to answer briefly.
 
-It also ships an optional **cost router** (cheap-router / expensive-worker) — see below.
+All three are controlled by one dial: **`/tokelang off｜lite｜full`** (default `lite`). It also ships an optional **cost router** (cheap-router / expensive-worker) — see below.
 
 > Compressing **every prompt you type** needs a proxy in front of the API, which a plugin hook can't do (hooks can't rewrite your raw input). That lives in a separate product, not this skill.
 
@@ -25,7 +24,7 @@ It also ships an optional **cost router** (cheap-router / expensive-worker) — 
 npx @tokelang-lite/claude-code-skill
 ```
 
-Installs to `~/.claude/skills/tokelang/` — downloads the matching engine binary and verifies its SHA-256. That's it: start a new Claude Code session and the skill is active at Level 2 (Balanced — subagent input + tool-result compression, lite output style guide). Slash commands available.
+Installs to `~/.claude/skills/tokelang/` — downloads the matching engine binary and verifies its SHA-256. That's it: start a new Claude Code session and the skill is active at **`lite`** (subagent + tool-result compression at a conservative depth + a concise output-style nudge). Slash commands available.
 
 ## What runs where
 
@@ -47,9 +46,9 @@ You see:     model's response
 
 | Want | Action |
 |---|---|
-| Skill less aggressive (no subagent/tool-result compression) | `/tokelang-level 1` |
-| Skill loaded but doing nothing | `/tokelang-level off` |
-| Skill more aggressive | `/tokelang-level 3` |
+| Loaded but doing nothing | `/tokelang off` |
+| Gentle (default) | `/tokelang lite` |
+| More aggressive | `/tokelang full` |
 | Usage metrics (opt-in) | `/tokelang-telemetry on` / `off` — **off by default**; aggregate counts only, never content |
 | Uninstall skill | `rm -rf ~/.claude/skills/tokelang` |
 
