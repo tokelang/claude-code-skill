@@ -6,9 +6,9 @@
  *
  * What it does (no external npm dependencies — built-in modules only):
  *   1. Detect this host's platform/arch and pick the matching release artifact name.
- *   2. Download that static `tokelang-cli` binary from the tokelang-cli GitHub release,
+ *   2. Download that static engine binary from this repo's own `engine-v*` GitHub release,
  *      verify it against the release's combined SHA256SUMS, mark it executable.
- *   3. Assemble the plugin (skills + hooks + statusline + resolver) at
+ *   3. Assemble the plugin (skills + agents + hooks + statusline + resolver) at
  *      `~/.claude/skills/tokelang/`, dropping the binary into its `bin/`.
  *
  * Install target = a personal-scope *skills-directory plugin*: any folder under
@@ -19,8 +19,8 @@
  *
  * Env overrides (mainly for offline installs / the Phase-2b gate / CI):
  *   TOKELANG_LOCAL_BIN   path to a prebuilt binary to use instead of downloading
- *   TOKELANG_DOWNLOAD_BASE   release asset base URL (default: the tokelang-cli GitHub release)
- *   TOKELANG_CLI_VERSION   version → release tag `v<version>` (default: package version)
+ *   TOKELANG_DOWNLOAD_BASE   release asset base URL (default: this repo's engine-v* release)
+ *   TOKELANG_CLI_VERSION   engine release tag override (default: engine-v1.0.0)
  *   TOKELANG_INSTALL_DIR   install fully somewhere else (default: $CLAUDE_CONFIG_DIR or ~/.claude → /skills/tokelang)
  * Flags: --dry-run (resolve + report, touch nothing), --force (reinstall), --help.
  */
@@ -132,11 +132,13 @@ function copyTree(src, dest, filter) {
 
 async function main() {
   const artifact = resolveArtifact();
-  const version = process.env.TOKELANG_CLI_VERSION || PKG.version;
-  const tag = `v${version}`;
+  // The engine binary is versioned independently of this npm package and is hosted on THIS
+  // repo's own releases (the standalone tokelang-cli was retired 2026-06-29). Pinning to the
+  // engine release tag means bumping the package version does not require re-publishing binaries.
+  const tag = process.env.TOKELANG_CLI_VERSION || 'engine-v1.0.0';
   const base =
     process.env.TOKELANG_DOWNLOAD_BASE ||
-    `https://github.com/tokelang/tokelang-cli/releases/download/${tag}`;
+    `https://github.com/tokelang/claude-code-skill/releases/download/${tag}`;
 
   const installDir =
     process.env.TOKELANG_INSTALL_DIR ||
@@ -211,6 +213,7 @@ async function main() {
   const PLUGIN_PARTS = [
     '.claude-plugin',
     'skills',
+    'agents',      // tokelang-router + tokelang-worker (opt-in via /tokelang-router on)
     'hooks',
     'statusline',
     'settings.json',

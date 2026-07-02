@@ -6,95 +6,85 @@
 
 Tokelang compresses tokens in your Claude Code session via a semantic validator that refuses any compression that drops meaning. Engine runs locally — your data never leaves your machine.
 
-## Two parts, two install paths
+## What it does
 
-| Part | Install | What it does |
-|---|---|---|
-| **Claude Code skill** | `npx @tokelang-lite/claude-code-skill` | Compresses your context files (slash command), your subagent invocations (Task tool prompts), and injects an output style guide so the model responds briefly. |
-| **`tokelang-cli wrap` alias** | `alias claude='tokelang-cli wrap claude'` | Compresses **every prompt you type** before it reaches Claude Code. The only way to get true input compression — Claude Code's plugin hooks are additive only and can't rewrite user input. |
+The skill compresses tokens at the surfaces Claude Code's plugin hooks can actually reach:
 
-You can install just the skill (lighter touch) or skill + wrap alias (full compression). Both share the same local engine. **Most users want both.**
+- **Context files** (`/tokelang-compress`) — CLAUDE.md, agent personas, RAG headers.
+- **Subagent invocations** (PreToolUse hook) — Task-tool prompt bodies.
+- **Tool results** (PostToolUse hook) — WebFetch / WebSearch output folded before it enters context. Code, diffs, and command output are never touched.
+- **Output style** (SessionStart hook) — nudges the model to answer briefly.
 
-## Install — skill only
+It also ships an optional **cost router** (cheap-router / expensive-worker) — see below.
+
+> Compressing **every prompt you type** needs a proxy in front of the API, which a plugin hook can't do (hooks can't rewrite your raw input). That lives in a separate product, not this skill.
+
+## Install
 
 ```bash
 npx @tokelang-lite/claude-code-skill
 ```
 
-Installs to `~/.claude/skills/tokelang/` — downloads the matching engine binary and verifies its SHA-256. That's it: start a new Claude Code session and the skill is active at Level 2 (Balanced — subagent input compression + lite output style guide). Slash commands available.
-
-## Install — skill + wrap mode (recommended for full compression)
-
-```bash
-# 1. Install the skill (as above)
-npx @tokelang-lite/claude-code-skill
-
-# 2. Install the standalone CLI binary — grab the matching asset from the latest release:
-#    https://github.com/tokelang/tokelang-cli/releases/latest
-#    Linux x86_64:
-curl -fsSL -o ~/.local/bin/tokelang-cli \
-  https://github.com/tokelang/tokelang-cli/releases/download/v1.0.0/tokelang-cli-linux-x86_64
-chmod +x ~/.local/bin/tokelang-cli
-#    (macOS: tokelang-cli-darwin-arm64 / -darwin-x86_64 · Windows: tokelang-cli-windows-x86_64.exe)
-#    Homebrew tap + one-line install.sh are coming soon.
-
-# 3. Add the wrap alias to your shell config (~/.bashrc, ~/.zshrc):
-alias claude='tokelang-cli wrap claude'
-
-# 4. (Optional) wrap other CLIs too:
-alias codex='tokelang-cli wrap codex'
-alias gemini='tokelang-cli wrap gemini'
-```
-
-Now every prompt you type to claude/codex/gemini gets compressed first.
+Installs to `~/.claude/skills/tokelang/` — downloads the matching engine binary and verifies its SHA-256. That's it: start a new Claude Code session and the skill is active at Level 2 (Balanced — subagent input + tool-result compression, lite output style guide). Slash commands available.
 
 ## What runs where
 
 ```
-You type:    "explain database connection pooling in detail please"
+              ── SessionStart hook: output style guide injected ("respond concisely")
+              ── PreToolUse hook (Task): subagent prompt compressed before the subagent sees it
+              ── PostToolUse hook (WebFetch/WebSearch): tool result folded before it enters context
               │
               ▼
-tokelang-cli wrap (intercepts stdin)
-              │
-              ▼
-Engine compresses to: "explain DB conn pooling detailed"
-              │
-              ▼
-              claude (sees compressed version)
-              │
-              ▼
-              ── SessionStart hook fires (skill)
-              ── Style guide injected: "respond concisely"
-              ── PreToolUse hook fires on Task tool (skill compresses subagent prompts)
-              │
-              ▼
-Model responds:  brief, focused answer (because style guide nudged it)
+Model responds:  brief, focused answer (because the style guide nudged it)
               │
               ▼
 You see:     model's response
 
-(meanwhile statusline shows running savings counter)
+(meanwhile the statusline shows a running savings counter)
 ```
 
 ## How to turn it down or off
 
 | Want | Action |
 |---|---|
-| Skill less aggressive (no subagent compression) | `/tokelang-level 1` |
+| Skill less aggressive (no subagent/tool-result compression) | `/tokelang-level 1` |
 | Skill loaded but doing nothing | `/tokelang-level off` |
 | Skill more aggressive | `/tokelang-level 3` |
-| Wrap mode disabled | `unalias claude` or comment out the alias line |
 | Usage metrics (opt-in) | `/tokelang-telemetry on` / `off` — **off by default**; aggregate counts only, never content |
 | Uninstall skill | `rm -rf ~/.claude/skills/tokelang` |
-| Uninstall CLI | delete the `tokelang-cli` binary from your PATH |
 
 Skill settings persist in `~/.claude/settings.json` under `"tokelang.level"`.
+
+## Cost router (optional, off by default)
+
+The skill also ships a **cheap-router / expensive-worker** pair of agents. A Haiku router holds your
+conversation cheaply and delegates the real reasoning to an Opus worker that only ever sees a
+curated, compressed brief — so the expensive model isn't re-reading your whole growing history every
+turn. Trivial turns the router handles inline; it never spawns the worker for them.
+
+```bash
+/tokelang-router on          # enable (takes effect next session, or: claude --agent tokelang-router)
+/tokelang-router off         # back to normal
+/tokelang-router status      # show current config
+/tokelang-router preset balanced   # max-savings | balanced | quality
+```
+
+Per-turn overrides while on: prefix a message with `!worker` to force delegation, or `!direct` to
+force the cheap router to answer itself.
+
+**When it pays off:** bigger, agentic tasks. In dogfood measurement it won every profile tested at
+equal accuracy — medium build −46%, large-context change −60%, long multi-feature build −48% — by
+cutting the Opus-seat tokens 48–72%. On trivial one-shot prompts it roughly breaks even, so it's built
+to down-route those and it's off by default. Turn it on when your task is bigger than a quick edit.
+
+Ships with `routing: fixed` (Opus worker). Dynamic worker-model routing (`/tokelang-router routing
+dynamic`) is **experimental** — its mis-routing rate isn't measured yet, so leave it fixed for now.
 
 ## Why brevity helps the model
 
 Hakim 2026 found that constraining large models to brief responses **improves accuracy by 26 percentage points** on hard reasoning benchmarks — and **reverses performance hierarchies** between small and large models. The mechanism: verbose generation introduces overelaboration errors. Strip the verbosity, the reasoning improves.
 
-Tokelang is the productionized version of that finding. We compress your input (via wrap mode) so the model isn't burning attention parsing verbose English, and we nudge it (via style guide injection) to respond briefly so it doesn't overelaborate.
+Tokelang is the productionized version of that finding. We compress the context, subagent prompts, and tool results the model has to read so it isn't burning attention on verbose English, and we nudge it (via style-guide injection) to respond briefly so it doesn't overelaborate.
 
 ## What gets compressed vs preserved
 
@@ -104,23 +94,23 @@ Tokelang is the productionized version of that finding. We compress your input (
 
 ## Vs. Caveman and others
 
-| | Tokelang (skill + wrap) | Caveman | LLMLingua / SynthLang |
+| | Tokelang skill | Caveman | LLMLingua / SynthLang |
 |---|---|---|---|
 | Engine runs locally | ✅ | ❌ (Claude API call per file) | ✅ |
 | Semantic validator | ✅ (0.85 / 0.90 recall floor + protected spans) | ❌ (structural only) | ❌ |
-| User-input compression | ✅ (wrap mode) | ❌ | ✅ (proxy) |
 | Subagent-input compression | ✅ (PreToolUse hook) | ❌ | ❌ |
+| Tool-result compression | ✅ (PostToolUse hook) | ❌ | ❌ |
 | Context-file compression | ✅ | ✅ | partial |
 | Output style guide | ✅ | ✅ | ❌ |
-| Cross-CLI (Codex, Gemini, Aider) | ✅ (wrap works for all) | ❌ Claude Code only | varies |
+| Cost router (cheap-router / expensive-worker) | ✅ | ❌ | ❌ |
 | Open source license | Apache 2.0 (patent grant) | MIT | varies |
 | Patent-backed IP | ✅ (IP India 2025-10-06) | — | — |
 
-The differentiator that matters: **the validator + the dual-frontend architecture**. The skill gives you what plugin hooks make possible; the wrap mode gives you what they don't.
+The differentiator that matters: **the semantic validator** — every fold is checked for meaning-recall and protected spans before it's applied, so a compression that would drop a negation, number, or code span is rejected and the original passes through unchanged.
 
 ## Privacy
 
-- Engine bundled is local-only — no network calls during compression
+- The engine runs locally — no network calls during compression (the binary is downloaded once at install, then never phones home)
 - Telemetry is **opt-in and off by default.** Turn it on/off with `/tokelang-telemetry on|off` (state in `~/.claude/.tokelang-telemetry.json`). When on, the Stop hook sends one aggregate ping per session: schema/CLI version, level, coarse OS/arch, this session's `tokens_saved` + event count, lifetime totals, and a locally-generated random `anon_id`. **Never** prompt text, responses, file paths, or session ids — the metrics are built from a sidecar that only stores `surface,orig,comp,timestamp` per event, so there is no content in it to send.
 - Hosted API at tokelang.com is a *separate product* used by the dashboard
 
@@ -139,7 +129,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). DCO sign-off required (`git commit -s`).
 v1.0.0 is the first OSS release (planned 2026-Q3). Companion projects:
 
 - [`tokelang-core`](https://github.com/tokelang/tokelang-core) — the Rust engine crate
-- [`tokelang-cli`](https://github.com/tokelang/tokelang-cli) — the standalone binary + wrap mode
 - [`vscode-extension`](https://github.com/tokelang/vscode-extension) — for Cursor / Windsurf / Copilot / Cline users
 
 Hosted dashboard + paid API at [tokelang.com](https://tokelang.com).

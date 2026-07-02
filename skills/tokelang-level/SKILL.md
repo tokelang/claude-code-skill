@@ -2,8 +2,9 @@
 name: tokelang-level
 description: >
   Change Tokelang's compression aggressiveness. L1 = output style guide only. L2 = + Task
-  subagent prompt compression (default on install). L3 = + aggressive output style.
-  "off" = skill loaded but inert. Setting persists in ~/.claude/settings.json.
+  subagent prompt + WebFetch/Search tool-result compression (default on install). L3 = + aggressive
+  output style + deeper tool-result folding. "off" = skill loaded but inert. Setting persists in
+  ~/.claude/settings.json.
   For user-input compression (every prompt you type), use the separate `tokelang-cli wrap`
   command — see README. Trigger: /tokelang-level [1|2|3|off]
 ---
@@ -21,14 +22,18 @@ Switch between four preset compression levels. Setting persists across sessions 
 
 ## Level matrix (revised 2026-06-01 for Option B)
 
-| Level | Context files (slash cmd) | Subagent inputs (Task tool) | Output style guide |
-|---|---|---|---|
-| **L1** Safe | via `/tokelang-compress` | **off** | "lite" — be concise |
-| **L2** Balanced (default install) | via `/tokelang-compress` | **on**, lite depth | "lite" — be concise |
-| **L3** Aggressive | via `/tokelang-compress` | **on**, medium depth | "medium" — fragments OK, drop articles |
-| **off** | via `/tokelang-compress` | **off** | **off** (no style guide injection) |
+| Level | Context files (slash cmd) | Subagent inputs (Task tool) | Tool results (WebFetch/Search) | Output style guide |
+|---|---|---|---|---|
+| **L1** Safe | via `/tokelang-compress` | **off** | **off** | "lite" — be concise |
+| **L2** Balanced (default install) | via `/tokelang-compress` | **on**, lite depth | **on**, lite depth (`context_file`) | "lite" — be concise |
+| **L3** Aggressive | via `/tokelang-compress` | **on**, medium depth | **on**, medium depth (`default`) | "medium" — fragments OK, drop articles |
+| **off** | via `/tokelang-compress` | **off** | **off** | **off** (no style guide injection) |
 
-Note: `/tokelang-compress` works at every level (it's user-initiated). Level only controls the *automatic* hooks (SessionStart style guide + PreToolUse Task compression).
+Tool-result compression (PostToolUse) folds only **WebFetch / WebSearch** results — verbose prose.
+Read/Edit/Bash/Grep results are never touched (code/logs/data are correctness-critical), and the
+engine is validator-gated so a rejected fold passes the original result through unchanged.
+
+Note: `/tokelang-compress` works at every level (it's user-initiated). Level only controls the *automatic* hooks (SessionStart style guide + PreToolUse Task compression + PostToolUse tool-result compression).
 
 **For real user-input compression**, you need `tokelang-cli wrap claude` as an alias. This is outside the skill's level dial. See README "Wrap mode" section.
 
@@ -41,6 +46,7 @@ Note: `/tokelang-compress` works at every level (it's user-initiated). Level onl
    ```
    Tokelang level changed: 2 (Balanced) → 1 (Safe).
    Subagent compression: OFF
+   Tool-result compression: OFF
    Output style guide: lite (be concise)
    Context-file compression: still available via /tokelang-compress
    ```
@@ -56,6 +62,8 @@ Note: `/tokelang-compress` works at every level (it's user-initiated). Level onl
   "tokelang.custom": {
     "subagent_input": true,
     "subagent_input.depth": "medium",
+    "tool_output": true,
+    "tool_output.depth": "lite",
     "output_style": "lite"
   }
 }
@@ -75,13 +83,14 @@ To uninstall completely: `claude plugin uninstall tokelang`.
 > /tokelang-level
 
 Current: 2 (Balanced)
-  Subagent compression:   ON (lite depth)
-  Output style guide:     lite (be concise)
+  Subagent compression:    ON (lite depth)
+  Tool-result compression: ON (lite depth, WebFetch/Search)
+  Output style guide:      lite (be concise)
 
 Levels:
-  1 / Safe       — output style only; subagent compression off
-  2 / Balanced   — + subagent compression (DEFAULT)
-  3 / Aggressive — + medium-depth subagent + aggressive output style
+  1 / Safe       — output style only; subagent + tool-result compression off
+  2 / Balanced   — + subagent + tool-result compression (DEFAULT)
+  3 / Aggressive — + medium-depth subagent/tool-result + aggressive output style
   off            — skill loaded but inert; hooks are no-ops
 
 For input compression (every prompt you type):
