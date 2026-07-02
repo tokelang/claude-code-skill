@@ -3,5 +3,5 @@
   "statusLine": {
     "command": "${CLAUDE_PLUGIN_ROOT}/statusline/savings.sh"
   },
-  "_comment": "tokelang.level is the compression dial: off | lite (default) | full. lite compresses subagent (Task) briefs + WebFetch/WebSearch tool results at a conservative depth and injects a concise output-style nudge; full goes deeper. off leaves the skill loaded but inert. Change with /tokelang <level>. The skill does NOT compress the prompts you type — Claude Code's hook contract cannot rewrite user input. Uninstall: rm -rf ~/.claude/skills/tokelang."
+  "_comment": "tokelang.level is the compression dial: off | lite (default) | full. lite compresses subagent (Task) briefs + WebFetch/WebSearch tool results at a conservative depth and injects a concise output-style nudge; full goes deeper. off leaves the skill loaded but inert. Change with /tokelang-output <level>. The skill does NOT compress the prompts you type — Claude Code's hook contract cannot rewrite user input. Uninstall: rm -rf ~/.claude/skills/tokelang."
 }

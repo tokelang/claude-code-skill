@@ -14,7 +14,7 @@ The skill compresses tokens at the surfaces Claude Code's plugin hooks can actua
 - **Tool results** (PostToolUse hook) — WebFetch / WebSearch output folded before it enters context. Code, diffs, and command output are never touched.
 - **Output style** (SessionStart hook) — nudges the model to answer briefly.
 
-All three are controlled by one dial: **`/tokelang off｜lite｜full`** (default `lite`). It also ships an optional **cost router** (cheap-router / expensive-worker) — see below.
+All three are controlled by one dial: **`/tokelang-output off｜lite｜full`** (default `lite`). It also ships an optional **cost router** (cheap-router / expensive-worker) — see below.
 
 > Compressing **every prompt you type** needs a proxy in front of the API, which a plugin hook can't do (hooks can't rewrite your raw input). That lives in a separate product, not this skill.
 
@@ -46,9 +46,9 @@ You see:     model's response
 
 | Want | Action |
 |---|---|
-| Loaded but doing nothing | `/tokelang off` |
-| Gentle (default) | `/tokelang lite` |
-| More aggressive | `/tokelang full` |
+| Loaded but doing nothing | `/tokelang-output off` |
+| Gentle (default) | `/tokelang-output lite` |
+| More aggressive | `/tokelang-output full` |
 | Usage metrics (opt-in) | `/tokelang-telemetry on` / `off` — **off by default**; aggregate counts only, never content |
 | Uninstall skill | `rm -rf ~/.claude/skills/tokelang` |
 

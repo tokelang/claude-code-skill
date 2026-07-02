@@ -1,25 +1,25 @@
 ---
-name: tokelang
+name: tokelang-output
 description: >
-  The Tokelang compression dial. `/tokelang off|lite|full` sets how aggressively the skill
-  compresses subagent briefs, WebFetch/WebSearch tool results, and the model's own verbosity —
-  each guarded by a semantic validator that refuses any fold that would drop meaning.
-  Default is `lite`. `/tokelang` with no argument shows the current level. Apache 2.0.
+  The Tokelang output-compression dial. `/tokelang-output off|lite|full` sets how aggressively the
+  skill shrinks what flows through the model: WebFetch/WebSearch tool results, subagent briefs, and
+  the model's own verbosity — each guarded by a semantic validator that refuses any fold that would
+  drop meaning. Default is `lite`. `/tokelang-output` with no argument shows the current level. Apache 2.0.
 ---
 
-# /tokelang — the compression dial
+# /tokelang-output — the output-compression dial
 
-`/tokelang <level>` sets one dial that controls all of the skill's automatic compression. It
-persists in `~/.claude/settings.json` under `"tokelang.level"`.
+`/tokelang-output <level>` sets one dial for all of the skill's automatic compression. It persists in
+`~/.claude/settings.json` under `"tokelang.level"`.
 
 ## Trigger
 
-- `/tokelang off` — loaded but inert (no compression, no style nudge)
-- `/tokelang lite` — **default.** Gentle: compresses subagent briefs + web tool results at a
+- `/tokelang-output off` — loaded but inert (no compression, no style nudge)
+- `/tokelang-output lite` — **default.** Gentle: folds web tool results + subagent briefs at a
   conservative (high-recall) depth, and nudges the model to answer concisely
-- `/tokelang full` — aggressive: deeper compression + a terser output style
-- `/tokelang` (no argument) — show the current level and what's on
-- Natural language: "turn tokelang down/off", "be more aggressive" → map to the nearest level
+- `/tokelang-output full` — aggressive: deeper compression + a terser output style
+- `/tokelang-output` (no argument) — show the current level and what's on
+- Natural language: "turn tokelang down/off", "compress output harder" → map to the nearest level
 
 ## Process
 
@@ -27,9 +27,9 @@ persists in `~/.claude/settings.json` under `"tokelang.level"`.
 2. Read `~/.claude/settings.json`, set `"tokelang.level"` to that value, save.
 3. Confirm, e.g.:
    ```
-   Tokelang: lite → full.
-     Subagent briefs:   compressed (default mode)
+   Tokelang output: lite → full.
      Web tool results:  compressed (default mode)
+     Subagent briefs:   compressed (default mode)
      Output style:      terse
    ```
    The hooks read this on their next fire — no restart needed.
@@ -38,16 +38,16 @@ persists in `~/.claude/settings.json` under `"tokelang.level"`.
 
 | Surface (all automatic) | off | lite (default) | full |
 |---|---|---|---|
-| Subagent briefs (Task prompts) | — | compressed | compressed |
 | WebFetch / WebSearch results | — | compressed (conservative) | compressed (deeper) |
 | Output style nudge | — | "be concise" | terse / fragments OK |
+| Subagent briefs (Task prompts) | — | compressed | compressed |
 
 Read/Edit/Bash/Grep tool results are **never** touched (code, logs, and data are correctness-critical).
 The skill does **not** compress the prompts you type — Claude Code's hooks can't rewrite user input.
 
 ## Why compress
 
-Compressed prompts save tokens **and** help the model reason: Hakim 2026
+Compressed context saves tokens **and** helps the model reason: Hakim 2026
 ([arXiv:2604.00025](https://arxiv.org/abs/2604.00025)) found brevity constraints improve accuracy by
 up to 26 points. The verbose English around a request is a parsing tax; stripping it helps.
 

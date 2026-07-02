@@ -42,10 +42,10 @@ esac
 # Build the additionalContext payload
 case "${STYLE}" in
   "lite")
-    CONTEXT="Tokelang is active (lite). Respond concisely. Drop pleasantries, hedges, and filler. Be direct. Run /tokelang off any time to disable."
+    CONTEXT="Tokelang is active (lite). Respond concisely. Drop pleasantries, hedges, and filler. Be direct. Run /tokelang-output off any time to disable."
     ;;
   "medium")
-    CONTEXT="Tokelang is active (full). Respond in compact form: fragments OK, drop articles where unambiguous, use bullet/key:value over prose paragraphs. Code blocks and exact quotations stay verbatim. Run /tokelang lite or off to dial back."
+    CONTEXT="Tokelang is active (full). Respond in compact form: fragments OK, drop articles where unambiguous, use bullet/key:value over prose paragraphs. Code blocks and exact quotations stay verbatim. Run /tokelang-output lite or off to dial back."
     ;;
 esac
 
